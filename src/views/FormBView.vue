@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { required, email, birthDate, login } from '@/utils/validators'
+import { useRouter } from 'vue-router'
+import { useResultStore } from '@/stores/result'
+import { submitForm } from '@/services/api'
+
+const router = useRouter()
+const store = useResultStore()
 
 // Типы для формы
 interface FormBData {
@@ -54,9 +60,27 @@ watch(
   { deep: true },
 )
 
-// onSubmit (заглушка)
-const onSubmit = () => {
-  console.log('Submit Form B:', formData.value)
+const isLoading = ref(false)
+const submitError = ref<string | null>(null)
+
+const onSubmit = async () => {
+  if (!isValid.value) return
+  isLoading.value = true
+  submitError.value = null
+
+  try {
+    const response = await submitForm('/form/b', formData.value)
+    if (response.error) {
+      submitError.value = response.error
+    } else {
+      store.setResult({ requestId: response.requestId!, classifier: response.classifier! })
+      router.push('/result')
+    }
+  } catch {
+    submitError.value = 'Ошибка отправки'
+  } finally {
+    isLoading.value = false
+  }
 }
 </script>
 
@@ -153,12 +177,13 @@ const onSubmit = () => {
           />
         </div>
 
+        <p v-if="submitError" class="mt-2 text-red-500 text-center">{{ submitError }}</p>
         <button
           type="submit"
-          :disabled="!isValid"
+          :disabled="!isValid || isLoading"
           class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50"
         >
-          Отправить
+          {{ isLoading ? 'Отправка...' : 'Отправить' }}
         </button>
       </form>
     </div>
