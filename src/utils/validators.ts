@@ -26,3 +26,22 @@ export const phone = (value: string): string | null => {
   const regex = /^\+7\s?\(\d{3}\)\s?\d{3}-\d{2}-\d{2}$/
   return regex.test(value) ? null : 'Формат: +7 (000) 000-00-00'
 }
+
+// Дата рождения (DD.MM.YYYY, простая проверка: формат и разумные значения)
+export const birthDate = (value: string): string | null => {
+  if (!value) return 'Дата рождения обязательно';
+  const regex = /^\d{2}\.\d{2}\.\d{4}$/;
+  if (!regex.test(value)) return 'Формат: DD.MM.YYYY';
+  const [day, month, year] = value.split('.').map(Number);
+  if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1900 || year > new Date().getFullYear()) {
+    return 'Некорректная дата';
+  }
+  return null;
+};
+
+// Логин (мин 6 символов, только латиница, цифры, _, -)
+export const login = (value: string): string | null => {
+  if (!value) return 'Логин обязательно';
+  const regex = /^[a-zA-Z0-9_-]{6,}$/;
+  return regex.test(value) ? null : 'Минимум 6 символов, только латиница, цифры, _, -';
+};
