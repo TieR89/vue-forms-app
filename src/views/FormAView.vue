@@ -1,26 +1,47 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue';
+import { required, email, inn, phone } from '@/utils/validators';
 
 interface FormAData {
-  name: string
-  email: string
-  inn: string
-  phone: string
+  name: string;
+  email: string;
+  inn: string;
+  phone: string;
 }
 
 const formData = ref<FormAData>({
   name: '',
   email: '',
   inn: '',
-  phone: '',
-})
+  phone: ''
+});
 
-const errors = ref<string[]>([])
-const isValid = computed(() => errors.value.length === 0)
+// Ошибки для каждого поля (для border)
+const fieldErrors = ref<Record<keyof FormAData, string | null>>({
+  name: null,
+  email: null,
+  inn: null,
+  phone: null
+});
 
+// Общий список ошибок (фильтруем не-null)
+const errors = computed(() => Object.values(fieldErrors.value).filter(e => e !== null) as string[]);
+
+// Валидность формы
+const isValid = computed(() => errors.value.length === 0);
+
+// Realtime валидация: watch на formData
+watch(formData, () => {
+  fieldErrors.value.name = required(formData.value.name, 'Имя');
+  fieldErrors.value.email = email(formData.value.email);
+  fieldErrors.value.inn = inn(formData.value.inn);
+  fieldErrors.value.phone = phone(formData.value.phone);
+}, { deep: true });
+
+// onSubmit (заглушка)
 const onSubmit = () => {
-  console.log('Submit Form A:', formData.value)
-}
+  console.log('Submit Form A:', formData.value);
+};
 </script>
 
 <template>
@@ -28,7 +49,7 @@ const onSubmit = () => {
     <div class="w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-md">
       <h2 class="text-2xl font-bold mb-6 text-center">Форма A</h2>
 
-      <!-- Список ошибок -->
+      <!-- Общий список ошибок над кнопкой -->
       <ul v-if="errors.length" class="mb-4 text-red-500 list-disc pl-5">
         <li v-for="error in errors" :key="error">{{ error }}</li>
       </ul>
@@ -41,8 +62,8 @@ const onSubmit = () => {
             id="name"
             v-model="formData.name"
             type="text"
-            class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:border-blue-500"
-            :class="{ 'border-red-500': isValid.value }"
+            class="w-full px-3 py-2 bg-gray-700 border rounded-md focus:outline-none focus:border-blue-500"
+            :class="{ 'border-red-500': fieldErrors.name, 'border-gray-600': !fieldErrors.name }"
           />
         </div>
 
@@ -53,8 +74,8 @@ const onSubmit = () => {
             id="email"
             v-model="formData.email"
             type="email"
-            class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:border-blue-500"
-            :class="{ 'border-red-500': isValid.value }"
+            class="w-full px-3 py-2 bg-gray-700 border rounded-md focus:outline-none focus:border-blue-500"
+            :class="{ 'border-red-500': fieldErrors.email, 'border-gray-600': !fieldErrors.email }"
           />
         </div>
 
@@ -65,8 +86,8 @@ const onSubmit = () => {
             id="inn"
             v-model="formData.inn"
             type="text"
-            class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:border-blue-500"
-            :class="{ 'border-red-500': isValid.value }"
+            class="w-full px-3 py-2 bg-gray-700 border rounded-md focus:outline-none focus:border-blue-500"
+            :class="{ 'border-red-500': fieldErrors.inn, 'border-gray-600': !fieldErrors.inn }"
           />
         </div>
 
@@ -78,8 +99,8 @@ const onSubmit = () => {
             v-model="formData.phone"
             type="tel"
             placeholder="+7 (000) 000-00-00"
-            class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:border-blue-500"
-            :class="{ 'border-red-500': isValid.value }"
+            class="w-full px-3 py-2 bg-gray-700 border rounded-md focus:outline-none focus:border-blue-500"
+            :class="{ 'border-red-500': fieldErrors.phone, 'border-gray-600': !fieldErrors.phone }"
           />
         </div>
 
@@ -94,5 +115,3 @@ const onSubmit = () => {
     </div>
   </div>
 </template>
-
-<style scoped></style>
