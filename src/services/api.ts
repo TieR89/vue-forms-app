@@ -33,12 +33,10 @@ type FormData = Record<string, string>
 // }
 
 
-// ... типы без изменений ...
-
 export const submitForm = async (path: '/form/a' | '/form/b', data: FormData): Promise<ApiResponse> => {
-  console.log(`Submitting data to ${path}:`, data);  // Опционально
+  console.log(`Submitting data to ${path}:`, data);
 
-  const response = await fetch(`http://localhost:3000/form${path.slice(6)}`, {  // /a или /b
+  const response = await fetch(`http://localhost:3000/form/${path.slice(6)}`, {  
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
