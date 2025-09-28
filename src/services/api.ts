@@ -32,19 +32,22 @@ type FormData = Record<string, string>
 //   })
 // }
 
+export const submitForm = async (
+  path: '/form/a' | '/form/b',
+  data: FormData,
+): Promise<ApiResponse> => {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000' // Fallback for local
+  console.log(`Submitting data to ${path}:`, data)
 
-export const submitForm = async (path: '/form/a' | '/form/b', data: FormData): Promise<ApiResponse> => {
-  console.log(`Submitting data to ${path}:`, data);
-
-  const response = await fetch(`http://localhost:3000/form/${path.slice(6)}`, {  
+  const response = await fetch(`${backendUrl}/form/${path.slice(6)}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-  });
+    body: JSON.stringify(data),
+  })
 
   if (!response.ok) {
-    throw new Error('Server error');
+    throw new Error('Server error')
   }
 
-  return response.json();
-};
+  return response.json()
+}
