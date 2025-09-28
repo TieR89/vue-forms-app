@@ -36,7 +36,7 @@ export const submitForm = async (
   path: '/form/a' | '/form/b',
   data: FormData,
 ): Promise<ApiResponse> => {
-  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000' // Fallback for local
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://vue-forms-backend-app.vercel.app' // Use Vercel in prod, fallback to Vercel if no env (remove localhost)
   console.log(`Submitting data to ${path}:`, data)
 
   const response = await fetch(`${backendUrl}/form/${path.slice(6)}`, {
